@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.7.32">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Arundev Vamadevan">
+
+<title>Generative AI - Encoder-Decoder, Attention, and Transformers</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="generative_ai_notes_files/libs/clipboard/clipboard.min.js"></script>
+<script src="generative_ai_notes_files/libs/quarto-html/quarto.js" type="module"></script>
+<script src="generative_ai_notes_files/libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="generative_ai_notes_files/libs/quarto-html/popper.min.js"></script>
+<script src="generative_ai_notes_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="generative_ai_notes_files/libs/quarto-html/anchor.min.js"></script>
+<link href="generative_ai_notes_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="generative_ai_notes_files/libs/quarto-html/quarto-syntax-highlighting-37eea08aefeeee20ff55810ff984fec1.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="generative_ai_notes_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="generative_ai_notes_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="generative_ai_notes_files/libs/bootstrap/bootstrap-bb462d781dde1847d9e3ccf7736099dd.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+
+
+<link rel="stylesheet" href="footer.css">
+</head>
+
+<body class="fullcontent quarto-light">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Generative AI - Encoder-Decoder, Attention, and Transformers</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p><a href="https://www.linkedin.com/in/arundev-v">Arundev Vamadevan</a> </p>
+          </div>
+  </div>
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="generative-ai" class="level1">
+<h1>Generative AI</h1>
+<section id="encoder-decoder" class="level2">
+<h2 class="anchored" data-anchor-id="encoder-decoder">Encoder &amp; Decoder</h2>
+<p>So far, we have learned different RNN models, but they have different problems:</p>
+<ol type="1">
+<li><strong>Simple RNN</strong> → <em>Vanishing gradient problem</em></li>
+<li><strong>LSTM-RNN</strong></li>
+<li><strong>GRU-RNN</strong></li>
+</ol>
+<blockquote class="blockquote">
+<p>LSTM (Long Short Term Memory) and GRU (Gated Reccurent Unit) have long short-term memory and are very efficient in solving problems like many-to-one RNN tasks (e.g., sentiment analysis, predicting the next word).</p>
+</blockquote>
+<hr>
+</section>
+<section id="lstm-vs-gru-comparison" class="level2">
+<h2 class="anchored" data-anchor-id="lstm-vs-gru-comparison">LSTM vs GRU Comparison</h2>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 17%">
+<col style="width: 82%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>LSTM</th>
+<th>GRU (Gated Recurrent Unit)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Uses a gating mechanism with 3 gates: input, forget, output</td>
+<td>Has 2 gates: update and reset</td>
+</tr>
+<tr class="even">
+<td>Excellent for long-term dependency</td>
+<td>Performs similarly with fewer parameters</td>
+</tr>
+<tr class="odd">
+<td>Maintains context over longer periods</td>
+<td>More efficient and simpler</td>
+</tr>
+<tr class="even">
+<td>Good for vanishing gradient issues</td>
+<td>Good performance and efficiency</td>
+</tr>
+</tbody>
+</table>
+<hr>
+</section>
+<section id="limitation-of-lstm-and-gru---they-lacks-future-context" class="level2">
+<h2 class="anchored" data-anchor-id="limitation-of-lstm-and-gru---they-lacks-future-context">Limitation of LSTM and GRU - They lacks future context</h2>
+<section id="reason-unidirectional-processing" class="level4">
+<h4 class="anchored" data-anchor-id="reason-unidirectional-processing">Reason : Unidirectional Processing</h4>
+<p>LSTM &amp; GRU lack future context due to one-way processing. Both process sequence in only one direction - from left to right (or from past to future). ie when making a prediction at position t, they only have access to information from 0 to t, not from t+1 onwards.</p>
+<p><strong>Example:</strong></p>
+<blockquote class="blockquote">
+<p>“The person who treats patients in the _____ is a doctor.”</p>
+</blockquote>
+<p>A standard LSTM / GRU processing the blank would not yet know that “doctor” is coming, which would be a strong clue that “hospital” should fill the blank.</p>
+</section>
+<section id="solution-bidirectional-rnns" class="level3">
+<h3 class="anchored" data-anchor-id="solution-bidirectional-rnns">Solution: Bidirectional RNNs</h3>
+<p>Works by running two separate RNNs (can be LSTM or GRU cells) simultaneously in opposite directions and their outputs are combined.</p>
+</section>
+</section>
+<section id="bidirectional-rnn" class="level2">
+<h2 class="anchored" data-anchor-id="bidirectional-rnn">Bidirectional RNN</h2>
+<ul>
+<li>B-RNN captures both past (forward RNN) and future (backward RNN) context.</li>
+<li>Effective in translation, speech recognition, and language understanding tasks.</li>
+<li>Downside: Double computational cost.</li>
+<li>Not suited for real-time streaming applications.</li>
+</ul>
+<hr>
+</section>
+<section id="sequence-to-sequence-processing" class="level2">
+<h2 class="anchored" data-anchor-id="sequence-to-sequence-processing">Sequence-to-Sequence Processing</h2>
+<p>Example: <strong>Machine Translation (English to Hindi)</strong></p>
+<p>Giving a sequence of inputs and producing a sequence of outputs. Type of RNN needed : Many to Many</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="Images/1_Seq-To-Seq.png" class="img-fluid figure-img"></p>
+<figcaption>Image - Seq2Seq Architecture</figcaption>
+</figure>
+</div>
+<p>These kind of scenarios where sequence of inputs accepted and sequence of output should generated, Basic RNNs will struggle and will not give good results. That is why We need <strong>Encoder–Decoder Architecture</strong>.</p>
+<p>Another example: chatbot<br>
+&gt; Input: “Hi, how are you?” → Output: response is also a sequence.</p>
+</section>
+<section id="encoder-decoder-architecture" class="level2">
+<h2 class="anchored" data-anchor-id="encoder-decoder-architecture">Encoder-Decoder Architecture</h2>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="Images/2_Enc-Dec-Arch.png" class="img-fluid figure-img"></p>
+<figcaption>Image - Encoder - Decoder Architecture</figcaption>
+</figure>
+</div>
+<section id="encoder-process" class="level3">
+<h3 class="anchored" data-anchor-id="encoder-process">1. Encoder Process</h3>
+<ol type="1">
+<li>Processes input sequence one token at a time.</li>
+<li>As it process each token, the hidden state is also updated to capture the information about the sequence.</li>
+<li>After processing the entire sequences, Final hidden state = context vector.</li>
+<li>This context vector represents the summarized representation of entire input sequence.</li>
+</ol>
+<hr>
+</section>
+<section id="context-vector-transfer" class="level3">
+<h3 class="anchored" data-anchor-id="context-vector-transfer">2. Context Vector Transfer</h3>
+<ul>
+<li>Contains compressed representation of the input.</li>
+<li>Bottleneck: condenses all info into one fixed-length vector.</li>
+<li>Sent to decoder as initial hidden state to start the decoding process.</li>
+</ul>
+<hr>
+</section>
+<section id="decoder-process" class="level3">
+<h3 class="anchored" data-anchor-id="decoder-process">3. Decoder Process</h3>
+<ol type="1">
+<li>Receives context vector as initial hidden state.</li>
+<li>Outputs sequence (eg:- Translation) one token at a time.</li>
+<li>At each step decoder uses current hidden state and previously generated token.</li>
+</ol>
+<p>Example : “Good Morning” → Translate to German Language</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="Images/3_Enc-Dec-Example.png" class="img-fluid figure-img"></p>
+<figcaption>Encoder - Decoder Example</figcaption>
+</figure>
+</div>
+</section>
+<section id="embedded-layer" class="level3">
+<h3 class="anchored" data-anchor-id="embedded-layer">Embedded Layer</h3>
+<ol type="1">
+<li>Convert input sentence into tokens (via embedding layer or word2vec).</li>
+<li>Transforms each token into a fixed-size dense vector.</li>
+<li>These vectors capture word semantics.</li>
+</ol>
+<p>Example: Suppose we have an english vocabulary of 1000 words and each word is represented as a 300-dimensional vector. The words “Good” and “Morning” are each converted into 300 dimensional vector using embedding layer.These vectors capture meaning and relationships between words (semantics)</p>
+<p>“Good” → [0.13, -0.72, 0.05, …, 0.91] (300 numbers)</p>
+<p>“Morning” → [0.44, -0.11, 0.63, …, -0.21] (300 numbers)</p>
+<p>300 dimension Used in Word2Vec (Google) and GloVe (Stanford) pretrained embeddings to balance performance vs computational cos, butit could be</p>
+<ol type="1">
+<li><p>50, 100, 200 (faster, lighter)</p></li>
+<li><p>300 (balanced)</p></li>
+<li><p>512 or 768 (used in BERT, GPT models)</p></li>
+</ol>
+<hr>
+</section>
+<section id="encoder" class="level3">
+<h3 class="anchored" data-anchor-id="encoder">Encoder</h3>
+<ul>
+<li>LSTM processes input sequence.</li>
+<li>Final state = context vector</li>
+</ul>
+</section>
+<section id="decoder" class="level3">
+<h3 class="anchored" data-anchor-id="decoder">Decoder</h3>
+<ul>
+<li>Another LSTM to generate translated output.</li>
+<li>Uses context vector, previous token, and its own hidden state.</li>
+</ul>
+<hr>
+</section>
+<section id="output-layer-fully-connected-softmax" class="level3">
+<h3 class="anchored" data-anchor-id="output-layer-fully-connected-softmax">Output Layer (Fully Connected Softmax)</h3>
+<ul>
+<li>Decoder output → Fully connected layer → Softmax : The output of LSTM at each step is passed though a fully connected dense layer to transform it into a vector of the same size as the German vocabulary.</li>
+<li>Converts to probability distribution : The vector is passed through softmax function -&gt; turns into probability distribution between 0 and 1.</li>
+<li>Highest value index = predicted word</li>
+</ul>
+</section>
+</section>
+<section id="limitation-of-encoderdecoder-architecture" class="level2">
+<h2 class="anchored" data-anchor-id="limitation-of-encoderdecoder-architecture">Limitation of Encoder–Decoder Architecture</h2>
+<ul>
+<li>One fixed context vector (encoders final state) used for all outputs.</li>
+<li>If sentence is long, compression leads to <strong>information loss</strong>.</li>
+</ul>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="Images/4_seq2seq.png" class="img-fluid figure-img"></p>
+<figcaption>Bleu Score vs Sentence Length</figcaption>
+</figure>
+</div>
+<p>Since it only consider the context vector in final state (not from each state), the context vector tend to have more information with nearest word which has seen in nearest time stamp. This problem is called <strong>Information Bottleneck</strong></p>
+<section id="solution" class="level4">
+<h4 class="anchored" data-anchor-id="solution">Solution</h4>
+<p>Give equal importance to all words in input sequence regardless of relevance to the current output token.</p>
+<ol type="1">
+<li><p><strong>Encoder-Decoder with Attention Mechanism</strong><br>
+Allows the decoder to focus on different parts of the input sequence at each decoding step.</p></li>
+<li><p><strong>Transformer Architecture</strong><br>
+Replaces traditional RNNs in encoder-decoder with a self-attention mechanism to better capture relationships between all words in the sequence.</p></li>
+</ol>
+<p>Therefore, with attention mechanism, the final one-time context vector transfer is replaced with a <strong>dynamic attention process</strong>, enabling the decoder to access different parts of the encoder output at each generation step.</p>
+</section>
+</section>
+</section>
+
+</main>
+<!-- /main column -->
+<div class="custom-footer">
+
+  © 2025 Arundev Vamadevan — All rights reserved.
+
+</div>
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+        const codeEl = trigger.previousElementSibling.cloneNode(true);
+        for (const childEl of codeEl.children) {
+          if (isCodeAnnotation(childEl)) {
+            childEl.remove();
+          }
+        }
+        return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
