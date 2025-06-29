@@ -1,0 +1,16 @@
+.custom-footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  text-align: center;
+  padding: 8px;
+  background: #f4f4f4;
+  font-size: 0.9em;
+  color: #444;
+  border-top: 1px solid #ccc;
+  z-index: 1000;
+}
+body {
+  padding-bottom: 50px; /* ensure space for the footer */
+}
