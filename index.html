@@ -21,6 +21,41 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
 </style>
 
 
@@ -38,6 +73,7 @@ ul.task-list li input[type="checkbox"] {
 
 
 <link rel="stylesheet" href="footer.css">
+<link rel="stylesheet" href="watermark.css">
 </head>
 
 <body class="fullcontent quarto-light">
@@ -273,6 +309,468 @@ Allows the decoder to focus on different parts of the input sequence at each dec
 Replaces traditional RNNs in encoder-decoder with a self-attention mechanism to better capture relationships between all words in the sequence.</p></li>
 </ol>
 <p>Therefore, with attention mechanism, the final one-time context vector transfer is replaced with a <strong>dynamic attention process</strong>, enabling the decoder to access different parts of the encoder output at each generation step.</p>
+</section>
+</section>
+<section id="attention-based-encoder-decoder" class="level2">
+<h2 class="anchored" data-anchor-id="attention-based-encoder-decoder">Attention-Based Encoder-Decoder</h2>
+<ol type="1">
+<li><strong>Encoder Output</strong>
+<ul>
+<li>Keep all hidden states<br>
+</li>
+</ul></li>
+<li><strong>Alignment Score</strong>
+<ul>
+<li>Score between current decoder state and each encoder state<br>
+</li>
+</ul></li>
+<li><strong>Attention Weights</strong>
+<ul>
+<li>Use softmax to compute probabilities<br>
+</li>
+</ul></li>
+<li><strong>Context Vector</strong>
+<ul>
+<li>Weighted sum of encoder states<br>
+</li>
+</ul></li>
+<li><strong>Output Generation</strong>
+<ul>
+<li>Combines context vector + previous output + decoder state</li>
+</ul></li>
+</ol>
+<hr>
+</section>
+<section id="limitations-of-attention" class="level2">
+<h2 class="anchored" data-anchor-id="limitations-of-attention">Limitations of Attention</h2>
+<ol type="1">
+<li><strong>Sequential Processing</strong> – No parallelization<br>
+</li>
+<li><strong>Long-Range Dependency</strong> – Still struggles with very long sequences<br>
+</li>
+<li><strong>Vanishing/Exploding Gradients</strong><br>
+</li>
+<li><strong>Computational Cost</strong></li>
+</ol>
+<hr>
+</section>
+<section id="transformers" class="level2">
+<h2 class="anchored" data-anchor-id="transformers">Transformers</h2>
+<section id="why-transformers" class="level3">
+<h3 class="anchored" data-anchor-id="why-transformers">Why Transformers?</h3>
+<ol type="1">
+<li><strong>Parallelization</strong>
+<ul>
+<li>Processes whole sequence at once<br>
+</li>
+<li>Faster on GPU/TPU<br>
+</li>
+</ul></li>
+<li><strong>Direct Connection</strong>
+<ul>
+<li>Self-attention allows connections between all positions<br>
+</li>
+<li>Solves information highway problem<br>
+</li>
+</ul></li>
+<li><strong>Multi-head Attention</strong>
+<ul>
+<li>Attend to different representations<br>
+</li>
+<li>Capture syntax, semantics, relationships<br>
+</li>
+<li>Enables parallel computation</li>
+</ul></li>
+</ol>
+<pre class="text"><code>Sentence: “The athlete who won many medals stopped competing”
+- Head 1: “athlete” → “stopped” (subject – verb)
+- Head 2: “athlete” → “won” (relative clause)
+- Head 3: “won” → “medals” (object)</code></pre>
+<hr>
+<ol start="4" type="1">
+<li><strong>Positional Encoding</strong>
+<ul>
+<li>Adds unique vectors to word embeddings for word order awareness</li>
+</ul></li>
+</ol>
+<pre class="text"><code>"Police arrested protester" ≠ "Protester arrested police"</code></pre>
+<ol start="5" type="1">
+<li><strong>Scalability</strong>
+<ul>
+<li>Efficient for large models and datasets</li>
+</ul></li>
+</ol>
+<hr>
+</section>
+</section>
+<section id="context-vectors-in-transformers" class="level2">
+<h2 class="anchored" data-anchor-id="context-vectors-in-transformers">Context Vectors in Transformers</h2>
+<p>Contextualized representations of tokens using self-attention mechanism.</p>
+<p>Steps:<br>
+1. Input Embedding<br>
+2. Positional Encoding<br>
+3. Self-Attention<br>
+4. Feedforward Layers<br>
+5. Contextualized Output</p>
+<hr>
+</section>
+<section id="contextual-embeddings-vs-static-embeddings" class="level2">
+<h2 class="anchored" data-anchor-id="contextual-embeddings-vs-static-embeddings">Contextual Embeddings vs Static Embeddings</h2>
+<p><strong>Word2Vec (Static):</strong><br>
+&gt; Same vector for word in all contexts<br>
+→ “Light the candle” vs “Sun gives light”</p>
+<p><strong>Contextual Embedding:</strong><br>
+- Varies depending on sentence</p>
+<p><strong>Example:</strong><br>
+The person who treats people is a __________?</p>
+<hr>
+</section>
+<section id="transformer-architecture" class="level2">
+<h2 class="anchored" data-anchor-id="transformer-architecture">Transformer Architecture</h2>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="Images/5_transformer.png" class="img-fluid figure-img"></p>
+<figcaption>Tranformer Architecture</figcaption>
+</figure>
+</div>
+<section id="encoder-1" class="level3">
+<h3 class="anchored" data-anchor-id="encoder-1">Encoder:</h3>
+<ol type="1">
+<li>Input Embedding + Positional Encoding<br>
+</li>
+<li>Self-Attention<br>
+</li>
+<li>Feedforward Layers<br>
+</li>
+<li>Encoder Output</li>
+</ol>
+</section>
+<section id="decoder-1" class="level3">
+<h3 class="anchored" data-anchor-id="decoder-1">Decoder:</h3>
+<ol type="1">
+<li>Output Embedding + Positional Encoding<br>
+</li>
+<li>Masked Self-Attention<br>
+</li>
+<li>Cross-Attention with Encoder Output<br>
+</li>
+<li>Feedforward Layers<br>
+</li>
+<li>Output Projection (Softmax)</li>
+</ol>
+<hr>
+</section>
+</section>
+<section id="bert-vs-gpt" class="level2">
+<h2 class="anchored" data-anchor-id="bert-vs-gpt">BERT vs GPT</h2>
+<ul>
+<li><strong>BERT</strong> – Encoder only (e.g., QA, NER)<br>
+</li>
+<li><strong>GPT</strong> – Decoder only (text generation)</li>
+</ul>
+<hr>
+</section>
+<section id="what-is-generative-ai" class="level2">
+<h2 class="anchored" data-anchor-id="what-is-generative-ai">What is Generative AI?</h2>
+<ul>
+<li>Creates original content: text, image, music, code, video<br>
+</li>
+<li>Uses learned patterns to generate new, realistic outputs</li>
+</ul>
+<p><strong>Example:</strong> DALL·E – Generates new image from prompt</p>
+<hr>
+</section>
+<section id="types-of-generative-ai-models" class="level2">
+<h2 class="anchored" data-anchor-id="types-of-generative-ai-models">Types of Generative AI Models</h2>
+<ol type="1">
+<li>Generative Adversarial Networks (GANs)<br>
+</li>
+<li>Variational Autoencoders (VAEs)<br>
+</li>
+<li>Transformer Models (e.g., GPT)</li>
+</ol>
+<hr>
+<section id="gans" class="level3">
+<h3 class="anchored" data-anchor-id="gans">GANs</h3>
+<ul>
+<li>Image generation<br>
+</li>
+<li>Generator vs Discriminator network<br>
+</li>
+<li>Generator improves over time</li>
+</ul>
+<hr>
+</section>
+<section id="vaes" class="level3">
+<h3 class="anchored" data-anchor-id="vaes">VAEs</h3>
+<ul>
+<li>Encodes input to latent space<br>
+</li>
+<li>Reconstructs or generates new data<br>
+</li>
+<li>Use case: reconstructing medical images</li>
+</ul>
+<hr>
+</section>
+<section id="transformers-1" class="level3">
+<h3 class="anchored" data-anchor-id="transformers-1">Transformers</h3>
+<ul>
+<li>Effective in text generation<br>
+</li>
+<li>Self-attention for context<br>
+</li>
+<li>Scalable to large sequences and datasets</li>
+</ul>
+<hr>
+</section>
+</section>
+<section id="large-language-models-llms" class="level2">
+<h2 class="anchored" data-anchor-id="large-language-models-llms">Large Language Models (LLMs)</h2>
+<ul>
+<li>Trained on massive datasets<br>
+</li>
+<li>Understand and generate human language<br>
+</li>
+<li>Billions of parameters (e.g., GPT-3 = 175B)</li>
+</ul>
+<p><strong>Use Cases:</strong><br>
+Chatbots, Q&amp;A, summarization, speech recognition</p>
+<hr>
+</section>
+<section id="how-llms-work" class="level2">
+<h2 class="anchored" data-anchor-id="how-llms-work">How LLMs Work</h2>
+<section id="transformer-architecture-1" class="level3">
+<h3 class="anchored" data-anchor-id="transformer-architecture-1">Transformer Architecture</h3>
+<ul>
+<li>Uses self-attention<br>
+</li>
+<li>Generates token-by-token</li>
+</ul>
+</section>
+<section id="self-supervised-learning" class="level3">
+<h3 class="anchored" data-anchor-id="self-supervised-learning">Self-Supervised Learning</h3>
+<ul>
+<li>Predicts next word without labels</li>
+</ul>
+</section>
+<section id="tokenization" class="level3">
+<h3 class="anchored" data-anchor-id="tokenization">Tokenization</h3>
+<ul>
+<li>Breaks text into tokens<br>
+</li>
+<li>Token limit includes input + output</li>
+</ul>
+<hr>
+</section>
+</section>
+<section id="llm-providers" class="level2">
+<h2 class="anchored" data-anchor-id="llm-providers">LLM Providers</h2>
+<ul>
+<li><strong>OpenAI</strong> – GPT-3/4, DALL·E, Whisper<br>
+</li>
+<li><strong>Anthropic</strong> – Claude<br>
+</li>
+<li><strong>Meta AI</strong> – LLaMA<br>
+</li>
+<li><strong>Hugging Face</strong> – BERT, T5, GPT-2<br>
+</li>
+<li><strong>Microsoft Azure</strong>, <strong>Google Vertex</strong>, <strong>Amazon Titan</strong></li>
+</ul>
+<hr>
+</section>
+<section id="choosing-the-right-model" class="level2">
+<h2 class="anchored" data-anchor-id="choosing-the-right-model">Choosing the Right Model</h2>
+<ul>
+<li>Quality<br>
+</li>
+<li>Speed<br>
+</li>
+<li>Price<br>
+</li>
+<li>Latency</li>
+</ul>
+<hr>
+</section>
+<section id="open-source-vs-proprietary" class="level2">
+<h2 class="anchored" data-anchor-id="open-source-vs-proprietary">Open Source vs Proprietary</h2>
+<section id="open-source" class="level3">
+<h3 class="anchored" data-anchor-id="open-source">Open Source</h3>
+<ul>
+<li>Free and modifiable<br>
+</li>
+<li>Examples: LLaMA, GPT-Neo</li>
+</ul>
+</section>
+<section id="proprietary" class="level3">
+<h3 class="anchored" data-anchor-id="proprietary">Proprietary</h3>
+<ul>
+<li>API only<br>
+</li>
+<li>Examples: GPT-4, Claude</li>
+</ul>
+<hr>
+</section>
+</section>
+<section id="hugging-face-and-ollama" class="level2">
+<h2 class="anchored" data-anchor-id="hugging-face-and-ollama">HUGGING FACE AND Ollama</h2>
+<p>Hugging Face and Ollama serve different purposes in the LLM ecosystem:</p>
+<section id="hugging-face" class="level3">
+<h3 class="anchored" data-anchor-id="hugging-face">Hugging Face</h3>
+<ul>
+<li>A comprehensive AI platform and community hub<br>
+</li>
+<li>Hosts thousands of open-source models across various AI domains (not just LLMs)<br>
+</li>
+<li>Provides tools for model training, fine-tuning, and deployment<br>
+</li>
+<li>Offers both free and paid services (Inference API)<br>
+</li>
+<li>Includes datasets, documentation, and research papers<br>
+</li>
+<li>A hosting platform where users can create and share machine learning web applications with minimal setup.<br>
+</li>
+<li>Has enterprise-focused solutions<br>
+</li>
+<li>Web-based interface with extensive collaboration features<br>
+</li>
+<li>Focuses on being a complete MLOps platform with model cards, versioning, etc.</li>
+</ul>
+</section>
+<section id="ollama" class="level3">
+<h3 class="anchored" data-anchor-id="ollama">Ollama</h3>
+<ul>
+<li>Focused specifically on running LLMs locally<br>
+</li>
+<li>Simplified command-line interface for downloading and running open-source models<br>
+</li>
+<li>Prioritizes ease of use for personal computing environments<br>
+</li>
+<li>Optimized for desktop/laptop performance with efficient resource usage<br>
+</li>
+<li>Provides a simple API for local application integration<br>
+</li>
+<li>Includes model library management functionality<br>
+</li>
+<li>Emphasizes privacy by keeping all processing on your machine<br>
+</li>
+<li>Primarily targets individual developers and hobbyists</li>
+</ul>
+<p><strong>The main difference is scope and focus</strong>:<br>
+Hugging Face is a comprehensive AI platform with broad capabilities, while Ollama is a specialized tool designed specifically to make running LLMs locally as simple as possible.</p>
+<hr>
+</section>
+<section id="ollama-capabilities" class="level3">
+<h3 class="anchored" data-anchor-id="ollama-capabilities">Ollama Capabilities</h3>
+<ol type="1">
+<li>Generate text<br>
+</li>
+<li>Answer a question<br>
+</li>
+<li>Summarize text<br>
+</li>
+<li>Translate text</li>
+</ol>
+<hr>
+</section>
+</section>
+<section id="hugging-face-1" class="level2">
+<h2 class="anchored" data-anchor-id="hugging-face-1">HUGGING FACE</h2>
+<p>Hugging Face is a platform in which we can do Gen AI projects, NLP projects, and Computer Vision projects.<br>
+Here we are more focusing on Gen AI tasks.</p>
+<p>Hugging Face has lots of Large Language Models and Datasets that can be used to train these kinds of LLMs.<br>
+Spaces – provides infrastructure for training models and deploy, but it is a paid service.</p>
+<p>Hugging Face provides one pipeline, so with the help of a pipeline we can easily perform any kind of task.<br>
+Hugging Face also has one Python library called <strong>Transformers</strong>, which can be used for creating any kind of Gen AI project.</p>
+<p>We will use a library called <code>Transformers</code>.<br>
+<strong>Transformer</strong> is the architecture but <strong>Transformers</strong> is the library.<br>
+It is named because it has all the models which are made based on Transformer architecture.</p>
+<p>If we want to use the Hugging Face platform with the help of Python, we need the <strong>Transformers</strong> library (It has all the functionalities to use it with Python).</p>
+<section id="pipeline-function-used" class="level4">
+<h4 class="anchored" data-anchor-id="pipeline-function-used">Pipeline – function used</h4>
+<div class="sourceCode" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> transformers <span class="im">import</span> pipeline</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+</section>
+<section id="nlp-tasks" class="level2">
+<h2 class="anchored" data-anchor-id="nlp-tasks">NLP Tasks</h2>
+<section id="text-classification" class="level3">
+<h3 class="anchored" data-anchor-id="text-classification">1. Text Classification</h3>
+<p>Assigning a category to a piece of text (e.g., Sentiment Analysis, Topic Classification, Spam Detection):</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>classifier <span class="op">=</span> pipeline(<span class="st">"text-classification"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<hr>
+</section>
+<section id="text-generation" class="level3">
+<h3 class="anchored" data-anchor-id="text-generation">2. Text Generation</h3>
+<div class="sourceCode" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>text_generator <span class="op">=</span> pipeline(<span class="st">"text-generation"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<hr>
+</section>
+<section id="token-classification" class="level3">
+<h3 class="anchored" data-anchor-id="token-classification">3. Token Classification</h3>
+<p>Assigning labels to individual tokens in a sequence (e.g., Named Entity Recognition, Part-of-Speech Tagging):</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>token_classifier <span class="op">=</span> pipeline(<span class="st">"token-classification"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<hr>
+</section>
+<section id="question-answering" class="level3">
+<h3 class="anchored" data-anchor-id="question-answering">4. Question Answering</h3>
+<p>Extracting an answer from a given context based on a question:</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>question_answerer <span class="op">=</span> pipeline(<span class="st">"question-answering"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<hr>
+</section>
+<section id="text-generation-1" class="level3">
+<h3 class="anchored" data-anchor-id="text-generation-1">5. Text Generation</h3>
+<p>Generating text based on a given prompt (e.g., Language Modeling, Story Generation):</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>text_generator <span class="op">=</span> pipeline(<span class="st">"text-generation"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<hr>
+</section>
+<section id="summarization" class="level3">
+<h3 class="anchored" data-anchor-id="summarization">6. Summarization</h3>
+<p>Condensing long documents into shorter summaries:</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>summarizer <span class="op">=</span> pipeline(<span class="st">"summarization"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<hr>
+</section>
+<section id="translation" class="level3">
+<h3 class="anchored" data-anchor-id="translation">7. Translation</h3>
+<p>Translating text from one language to another:</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>translator <span class="op">=</span> pipeline(<span class="st">"translation"</span>, model<span class="op">=</span><span class="st">"Helsinki-NLP/opus-mt-en-fr"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<hr>
+</section>
+<section id="text2text-generation" class="level3">
+<h3 class="anchored" data-anchor-id="text2text-generation">8. Text2Text Generation</h3>
+<p>General-purpose text transformation (e.g., summarization, translation):</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>text2text_generator <span class="op">=</span> pipeline(<span class="st">"text2text-generation"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+</section>
+<section id="example-tasks-using-hugging-face-transformers-pipeline" class="level2">
+<h2 class="anchored" data-anchor-id="example-tasks-using-hugging-face-transformers-pipeline">Example Tasks using Hugging Face <code>transformers</code> Pipeline</h2>
+<section id="task-1-sentiment-analysis" class="level3">
+<h3 class="anchored" data-anchor-id="task-1-sentiment-analysis">Task 1: Sentiment Analysis</h3>
+<div class="sourceCode" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> transformers <span class="im">import</span> pipeline</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>classifier <span class="op">=</span> pipeline(<span class="st">"sentiment-analysis"</span>)</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>result <span class="op">=</span> classifier(<span class="st">"I was happy to visit my home country"</span>)</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(result)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<hr>
+</section>
+<section id="task-2-text-generation" class="level3">
+<h3 class="anchored" data-anchor-id="task-2-text-generation">Task 2: Text Generation</h3>
+<div class="sourceCode" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> transformers <span class="im">import</span> pipeline</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>text_generator <span class="op">=</span> pipeline(<span class="st">"text-generation"</span>, model<span class="op">=</span><span class="st">"distilbert/distilgpt2"</span>)</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>generated_text <span class="op">=</span> text_generator(</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Today is a rainy day in London"</span>,</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>    truncation<span class="op">=</span><span class="va">True</span>,</span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>    num_return_sequences<span class="op">=</span><span class="dv">2</span></span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Generated_text:</span><span class="ch">\n</span><span class="st">"</span>, generated_text)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<hr>
+</section>
+<section id="task-3-question-answering" class="level3">
+<h3 class="anchored" data-anchor-id="task-3-question-answering">Task 3: Question Answering</h3>
+<div class="sourceCode" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> transformers <span class="im">import</span> pipeline</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>qa_model <span class="op">=</span> pipeline(<span class="st">"question-answering"</span>)</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>question <span class="op">=</span> <span class="st">"What is my job?"</span></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>context <span class="op">=</span> <span class="st">"I am developing AI models with Python."</span></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(qa_model(question<span class="op">=</span>question, context<span class="op">=</span>context))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </section>
 </section>
 </section>
