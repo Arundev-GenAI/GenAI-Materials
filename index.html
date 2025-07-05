@@ -773,6 +773,884 @@ It is named because it has all the models which are made based on Transformer ar
 <span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(qa_model(question<span class="op">=</span>question, context<span class="op">=</span>context))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </section>
 </section>
+<section id="llm-augmentation" class="level2">
+<h2 class="anchored" data-anchor-id="llm-augmentation">LLM Augmentation:</h2>
+<p>LLM (Large Language Model) Augmentation refers to techniques used to enhance the capabilities of large language models by integrating external data sources, retrieval mechanisms, fine-tuning strategies, or computational methods to improve their accuracy, relevance, and contextual understanding.</p>
+<section id="techniques-of-llm-augmentation" class="level3">
+<h3 class="anchored" data-anchor-id="techniques-of-llm-augmentation">Techniques of LLM Augmentation</h3>
+<ol type="1">
+<li><strong>Retrieval-Augmented Generation (RAG)</strong>
+<ul>
+<li>Combines LLMs with an external knowledge base to fetch relevant information before generating a response.</li>
+</ul></li>
+<li><strong>Fine-Tuning &amp; Parameter Efficient Fine-Tuning (PEFT)</strong><br>
+Fine-tuning the model using domain-specific datasets to improve its performance in a particular task.<br>
+Techniques:
+<ul>
+<li>Full fine-tuning<br>
+</li>
+<li>LoRA (Low-Rank Adaptation)<br>
+</li>
+<li>QLoRA (Quantized LoRA)<br>
+</li>
+<li>Prefix Tuning</li>
+</ul></li>
+<li><strong>Prompt Engineering &amp; Prompt Tuning</strong><br>
+Optimizing input prompts to get more accurate and relevant responses from the model.<br>
+Techniques:
+<ul>
+<li>Zero-shot, Few-shot, and Chain-of-Thought (CoT) prompting<br>
+</li>
+<li>Self-consistency prompting<br>
+</li>
+<li>Prompt tuning with soft tokens</li>
+</ul></li>
+<li><strong>Knowledge Injection &amp; External APIs</strong><br>
+Integrating real-time or domain-specific knowledge via APIs or databases.<br>
+Techniques:
+<ul>
+<li>SQL-based data augmentation<br>
+</li>
+<li>Graph-based knowledge retrieval<br>
+</li>
+<li>API calls to real-time sources</li>
+</ul></li>
+<li><strong>Memory-Augmented LLMs</strong><br>
+Allowing LLMs to retain contextual knowledge over multiple interactions.<br>
+Techniques:
+<ul>
+<li>Persistent memory (e.g., LangChain memory modules)<br>
+</li>
+<li>Context caching and dynamic context expansion</li>
+</ul></li>
+<li><strong>Multimodal Augmentation</strong><br>
+Extending LLMs to process text along with other modalities like images, videos, and speech.<br>
+Techniques:
+<ul>
+<li>Vision-Language Models (e.g., BLIP, Flamingo)<br>
+</li>
+<li>Audio-Language Fusion (e.g., Whisper + LLM)</li>
+</ul></li>
+<li><strong>Self-Refinement &amp; Reinforcement Learning</strong><br>
+LLMs refine their own responses using reinforcement mechanisms.<br>
+Techniques:
+<ul>
+<li>Reinforcement Learning from Human Feedback (RLHF)<br>
+</li>
+<li>Self-consistency and self-distillation</li>
+</ul></li>
+</ol>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="Images/6_Prompt_Engineering.png" class="img-fluid figure-img"></p>
+<figcaption>Prompt Engineering</figcaption>
+</figure>
+</div>
+</section>
+</section>
+<section id="prompt" class="level2">
+<h2 class="anchored" data-anchor-id="prompt">Prompt</h2>
+<p>The input or instruction we give to an LLM to guide its response. It could be question, a command or even just a phrase. The way we phrase our prompt plays a huge role in how the model responds. Prompts is like a set of directions that we give to the LLM to do tasks like Answer a question, summarize text, generate a story or even providing code snippets.</p>
+<section id="understanding-a-prompt" class="level3">
+<h3 class="anchored" data-anchor-id="understanding-a-prompt">Understanding A Prompt</h3>
+<p>We can think of prompts as programs for LLMs. Just like how a traditional program gives instructions to a computer to perform a specific task. Prompt tells the LLM how to respond based on our input and is designed to get the model to produce responses that meet your specific requirements. The better the prompt, the better the models response. So, we can tell promps as the foundation of the interaction with the LLM. Its structure and clarity directly influence the quality of the response.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="Images/7_Prompt.png" class="img-fluid figure-img"></p>
+<figcaption>Prompt Example</figcaption>
+</figure>
+</div>
+</section>
+</section>
+<section id="elements-of-a-prompt" class="level2">
+<h2 class="anchored" data-anchor-id="elements-of-a-prompt">Elements of a prompt</h2>
+<section id="instruction-or-task" class="level3">
+<h3 class="anchored" data-anchor-id="instruction-or-task">Instruction or Task</h3>
+<p>The core request for the model, a specific task or instruction we want the model to perform.</p>
+</section>
+<section id="context" class="level3">
+<h3 class="anchored" data-anchor-id="context">Context</h3>
+<p>Background information to guide the response, like external information or additional context</p>
+</section>
+<section id="input-data" class="level3">
+<h3 class="anchored" data-anchor-id="input-data">Input Data</h3>
+<p>The input or question that we are interested to find a response for</p>
+</section>
+<section id="output-format" class="level3">
+<h3 class="anchored" data-anchor-id="output-format">Output Format</h3>
+<p>Defines how the response should be structured, the type or format of the output.</p>
+<hr>
+</section>
+<section id="examples---elements-of-a-prompt" class="level3">
+<h3 class="anchored" data-anchor-id="examples---elements-of-a-prompt">Examples - Elements of a Prompt</h3>
+<p><strong>Instruction or Task</strong><br>
+You will be provided with statements, and your task is to convert them to standard English</p>
+<p><strong>Context</strong><br>
+You are a customer service representative. Explain the return policy to a customer who is unhappy with their purchase</p>
+<p><strong>Input Data</strong><br>
+The customer purchased a smart speaker but reported that it is not connecting to their<br>
+Wi-Fi. They have tried restarting both the router and the speaker, but the issue persists</p>
+<p><strong>Output Format</strong><br>
+Provide a list of the top 5 features of this product<br>
+Write a 2-paragraph summary of the article<br>
+Create a table comparing solar energy</p>
+<hr>
+</section>
+</section>
+<section id="what-is-prompt-engineering" class="level2">
+<h2 class="anchored" data-anchor-id="what-is-prompt-engineering">What is Prompt Engineering</h2>
+<p>Crafting and refining prompts to improve model responses. Kind of thinking strategically to guide the model in the right direction. This involves experimenting and iterating with different wording, structure and styles.<br>
+The first prompt we use wont give the best result. So refine it through iteration to optimize the response by maximizing the performance of the model and get answers that meet our specific needs.</p>
+</section>
+<section id="why-prompt-engineering-is-important" class="level2">
+<h2 class="anchored" data-anchor-id="why-prompt-engineering-is-important">Why Prompt Engineering is important</h2>
+<ul>
+<li>Helps to get more accurate and relevant responses and allows us to shape the models behaviour.<br>
+</li>
+<li>We can design prompts to respond in a specific tone such as formal, friendly or technical. It also reduces vague or incorrect outputs by clarifying the instructions.</li>
+</ul>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="Images/8_steps.png" class="img-fluid figure-img"></p>
+<figcaption>Templatized Prompt</figcaption>
+</figure>
+</div>
+<section id="templatize" class="level4">
+<h4 class="anchored" data-anchor-id="templatize">Templatize</h4>
+<p>Create a reusable structure for prompts that can be applied to similar tasks<br>
+Useful when doing repetitive tasks like summarize articles, generate reports, answer questions</p>
+<hr>
+</section>
+</section>
+<section id="advanced-prompting-techniques" class="level2">
+<h2 class="anchored" data-anchor-id="advanced-prompting-techniques">Advanced Prompting Techniques</h2>
+<p>Fine-tune interactions for more accurate, meaningful and context-aware outputs.<br>
+Common prompting techniques:</p>
+<ol type="1">
+<li>Zero-shot, one-shot and few-shot Prompting<br>
+</li>
+<li>Chain-of-Thought Prompting<br>
+</li>
+<li>Role-based and Instruction-based prompting<br>
+</li>
+<li>Contextual Prompting with RAG</li>
+</ol>
+<hr>
+<section id="zero-shot-prompting" class="level3">
+<h3 class="anchored" data-anchor-id="zero-shot-prompting">Zero-Shot Prompting</h3>
+<ul>
+<li>Simplest and most widely used prompting technique<br>
+</li>
+<li>Provide the model with no prior examples or context before asking it to complete a task<br>
+</li>
+<li>The model must rely entirely on its pre-trained knowledge<br>
+</li>
+<li>Ask to complete task or answer question without offering any specific guidance or examples</li>
+</ul>
+<p><strong>Example:</strong><br>
+<em>What is the capital of Japan?</em> — Tokyo (based on its pre-existing knowledge)</p>
+<p>Ideal for simple, factual queries or tasks where the model doesn’t need any further context or instructions</p>
+<hr>
+</section>
+<section id="one-shot-prompting" class="level3">
+<h3 class="anchored" data-anchor-id="one-shot-prompting">One-Shot Prompting</h3>
+<ul>
+<li>Provide one example before asking the model to generate a response<br>
+</li>
+<li>Gives the model a bit of direction by showing it a single instance of what you want<br>
+</li>
+<li>Single example to follow, provide template or guide for its response<br>
+</li>
+<li>Ideal for the model to adopt a specific format, tone, or structure</li>
+</ul>
+<p><strong>Example:</strong><br>
+First show it one product description as an example, then ask it to write a new one for a different product</p>
+<hr>
+</section>
+<section id="few-shot-prompting" class="level3">
+<h3 class="anchored" data-anchor-id="few-shot-prompting">Few-Shot Prompting</h3>
+<ul>
+<li>Provide a few examples of the task you want the model to perform before asking it<br>
+</li>
+<li>Gives the model clearer guidance and helps it understand patterns, structure, and tone<br>
+</li>
+<li>Produce a response that aligns expectations, useful for more complex or structured tasks<br>
+</li>
+<li>Provide the model with multiple examples to generate a similar response</li>
+</ul>
+<p><strong>Example:</strong><br>
+Giving two or three sample summaries helps the model understand the format and what kind of details to include</p>
+<hr>
+</section>
+<section id="chain-of-thought-prompting" class="level3">
+<h3 class="anchored" data-anchor-id="chain-of-thought-prompting">Chain-of-Thought Prompting</h3>
+<ul>
+<li>Break down its thought process and provide a step-by-step explanation<br>
+</li>
+<li>Useful for logical reasoning, problem-solving or multi-step processes<br>
+</li>
+<li>Don’t just ask for a final answer — you ask the model to explain its reasoning in a step-by-step process</li>
+</ul>
+<p><strong>Example:</strong><br>
+Solve a math problem, it will break down the calculation step by step</p>
+<hr>
+</section>
+<section id="instruction-based-prompting" class="level3">
+<h3 class="anchored" data-anchor-id="instruction-based-prompting">Instruction-based Prompting</h3>
+<ul>
+<li>Give the model very clear and direct instructions<br>
+</li>
+<li>Telling it exactly what you want it to do<br>
+</li>
+<li>Useful when you need specific results, like a summary, list, or report</li>
+</ul>
+<p><strong>Example:</strong><br>
+<em>Write a 200-word summary of this article, then list three key points in bullet form</em><br>
+The model follows your exact guidelines, producing structured and organized results</p>
+</section>
+</section>
+<section id="choosing-the-right-optimization-prompt-engineering-rag-and-fine-tuning" class="level2">
+<h2 class="anchored" data-anchor-id="choosing-the-right-optimization-prompt-engineering-rag-and-fine-tuning">Choosing the right optimization – Prompt Engineering, RAG and Fine-Tuning</h2>
+<section id="comparison-prompt-engineering-vs-rag-vs-fine-tuning" class="level3">
+<h3 class="anchored" data-anchor-id="comparison-prompt-engineering-vs-rag-vs-fine-tuning">Comparison: Prompt Engineering vs RAG vs Fine-Tuning</h3>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 32%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th><strong>Prompt Engineering</strong></th>
+<th><strong>RAG (Retrieval-Augmented Generation)</strong></th>
+<th><strong>Fine-Tuning</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>No additional training required</td>
+<td>Brings real-time, external data into the model</td>
+<td>Adapt the model to domain-specific language</td>
+</tr>
+<tr class="even">
+<td>Works out of the box</td>
+<td>Great for dynamic content or live data queries</td>
+<td>Lower latency and token usage</td>
+</tr>
+<tr class="odd">
+<td>Easy to iterate and adjust</td>
+<td>Reduces hallucination by retrieving documents</td>
+<td>Best for well-defined, repeated use cases</td>
+</tr>
+<tr class="even">
+<td>Limited by model’s original knowledge</td>
+<td>Requires infrastructure (vector stores, indexing)</td>
+<td>Requires a large dataset and compute resources</td>
+</tr>
+<tr class="odd">
+<td>Long prompts can increase costs (more tokens)</td>
+<td>Slower response time due to retrieval steps</td>
+<td>Fine-tuned models may lose generalization</td>
+</tr>
+<tr class="even">
+<td>Can lead to inconsistency without enough examples</td>
+<td>Higher complexity to set up</td>
+<td>Time-consuming to update when new data is available</td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="technique-comparison-of-3-techniques" class="level2">
+<h2 class="anchored" data-anchor-id="technique-comparison-of-3-techniques">Technique Comparison of 3 Techniques</h2>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 14%">
+<col style="width: 27%">
+<col style="width: 27%">
+<col style="width: 29%">
+</colgroup>
+<thead>
+<tr class="header">
+<th><strong>Aspect</strong></th>
+<th><strong>Prompt Engineering</strong></th>
+<th><strong>RAG (Retrieval-Augmented Generation)</strong></th>
+<th><strong>Fine-Tuning</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Setup Complexity</td>
+<td>Low</td>
+<td>Medium (requires vector store setup)</td>
+<td>High (requires dataset and compute resources)</td>
+</tr>
+<tr class="even">
+<td>Customization Level</td>
+<td>Limited</td>
+<td>High (dynamic retrieval)</td>
+<td>Very High (specialized model behavior)</td>
+</tr>
+<tr class="odd">
+<td>Response Time</td>
+<td>Fast</td>
+<td>Slower (retrieval adds latency)</td>
+<td>Fast</td>
+</tr>
+<tr class="even">
+<td>Maintenance Requirement</td>
+<td>Low</td>
+<td>Medium (update vector stores)</td>
+<td>High (re-train for new use cases)</td>
+</tr>
+<tr class="odd">
+<td>Use Case Examples</td>
+<td>Quick answers, chatbots</td>
+<td>Real-time data, semantic search</td>
+<td>Specialized apps (finance, legal, healthcare)</td>
+</tr>
+<tr class="even">
+<td>Cost</td>
+<td>High (long prompts = more tokens)</td>
+<td>Moderate (retrieval infrastructure costs)</td>
+<td>High (training and infrastructure costs)</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="choosing-the-right-optimization" class="level2">
+<h2 class="anchored" data-anchor-id="choosing-the-right-optimization">Choosing the right optimization</h2>
+<section id="time-is-a-constraint" class="level3">
+<h3 class="anchored" data-anchor-id="time-is-a-constraint">Time is a Constraint</h3>
+<p>Start with Prompt Engineering — it’s fast, easy to experiment with, and requires no model changes.</p>
+</section>
+<section id="if-you-need-real-time-data" class="level3">
+<h3 class="anchored" data-anchor-id="if-you-need-real-time-data">If You Need Real-Time Data</h3>
+<p>Use RAG to fetch external or frequently updated information, ideal for apps like customer support, semantic search, or financial dashboards.</p>
+</section>
+<section id="if-you-need-high-accuracy-and-efficiency" class="level3">
+<h3 class="anchored" data-anchor-id="if-you-need-high-accuracy-and-efficiency">If You Need High Accuracy and Efficiency</h3>
+<p>Fine-tune the model when you want to reduce latency and token costs for well-defined, repetitive tasks like legal compliance checks or automated reporting.</p>
+<hr>
+</section>
+<section id="best-practice" class="level3">
+<h3 class="anchored" data-anchor-id="best-practice">Best Practice</h3>
+<p>The best practice is to combine all three techniques to get the most out of your LLM.</p>
+<ul>
+<li>Prompt Engineering helps you prototype and test prompts quickly<br>
+</li>
+<li>RAG ensures that your model has access to the latest external information<br>
+</li>
+<li>Fine-Tuning makes the model more efficient for domain-specific tasks by reducing token usage and improving accuracy</li>
+</ul>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="Images/9_Comparison.png" class="img-fluid figure-img"></p>
+<figcaption>Best Practice</figcaption>
+</figure>
+</div>
+<p><a href="https://platform.openai.com/docs/guides/optimizing-llm-accuracy">Source : Optimizing LLM Accuracy – OpenAI Documentation</a></p>
+</section>
+</section>
+<section id="training-own-model-for-llm-optimization" class="level2">
+<h2 class="anchored" data-anchor-id="training-own-model-for-llm-optimization">Training own model for LLM optimization</h2>
+<section id="why-train-from-scratch" class="level3">
+<h3 class="anchored" data-anchor-id="why-train-from-scratch">Why Train from Scratch?</h3>
+<ul>
+<li>If you need deep, specific domain knowledge without any bias from pre-existing models<br>
+</li>
+<li>If your data or the use case is unique, this approach provides more precise and controlled outcomes<br>
+</li>
+<li>In sensitive industries, having a model trained entirely on internal data can help meet stringent compliance requirements</li>
+</ul>
+<hr>
+</section>
+<section id="drawbacks-of-training-from-scratch" class="level3">
+<h3 class="anchored" data-anchor-id="drawbacks-of-training-from-scratch">Drawbacks of Training from Scratch</h3>
+<ul>
+<li>Requires substantial computational power, storage, and sometimes weeks to complete<br>
+</li>
+<li>High-quality and large-scale data is essential, which can be costly and time-consuming to collect<br>
+</li>
+<li>Need specialized skills in deep learning, hyperparameter tuning, and model optimization<br>
+</li>
+<li>This process is lengthy compared to fine-tuning or prompt engineering</li>
+</ul>
+</section>
+</section>
+<section id="fine-tuning-llms" class="level2">
+<h2 class="anchored" data-anchor-id="fine-tuning-llms">Fine-tuning LLMs</h2>
+<p>Fine-tuning is the process of taking a pre-trained machine learning model and further training it on a specific dataset to adapt it for a particular task or domain. The model is already trained on large amount of data but needs to be optimized for domain-specific knowledge.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="Images/10_fine_tuning.png" class="img-fluid figure-img"></p>
+<figcaption>Fine Tuning</figcaption>
+</figure>
+</div>
+<p>Fine-tuning is like giving the doctor specialized training in cardiology.<br>
+After fine-tuning, the doctor retains their general medical knowledge but is now an expert in heart-related issues.</p>
+</section>
+<section id="why-fine-tune-a-pre-trained-model" class="level2">
+<h2 class="anchored" data-anchor-id="why-fine-tune-a-pre-trained-model">Why Fine-Tune a Pre-Trained Model?</h2>
+<p>Pre-trained language models, such as GPT variants, are built on large-scale, general-purpose datasets drawn from a wide range of internet sources. While these models exhibit strong general language understanding, they often lack the precision required for specific domains like healthcare, law, finance, or customer support.</p>
+<hr>
+<section id="key-benefits-of-fine-tuning" class="level3">
+<h3 class="anchored" data-anchor-id="key-benefits-of-fine-tuning">Key Benefits of Fine-Tuning</h3>
+<section id="domain-adaptation" class="level4">
+<h4 class="anchored" data-anchor-id="domain-adaptation"><strong>Domain Adaptation</strong></h4>
+<p>Pre-trained models do not inherently understand proprietary information or specialized terminology.<br>
+For instance, they won’t recognize your company’s latest product features unless fine-tuned on relevant documentation and data.</p>
+</section>
+<section id="enhanced-performance-in-niche-tasks" class="level4">
+<h4 class="anchored" data-anchor-id="enhanced-performance-in-niche-tasks"><strong>Enhanced Performance in Niche Tasks</strong></h4>
+<p>Fine-tuned models can handle domain-specific tasks like legal document review, medical record summarization, or technical support automation more accurately.</p>
+</section>
+<section id="cost-optimization" class="level4">
+<h4 class="anchored" data-anchor-id="cost-optimization"><strong>Cost Optimization</strong></h4>
+<p>By fine-tuning a smaller, efficient model (e.g., <code>gpt-4o-mini</code>), organizations can reduce dependency on larger, costlier models like <code>gpt-4o</code>, while still achieving high accuracy for specialized use cases.</p>
+</section>
+<section id="workflow-alignment" class="level4">
+<h4 class="anchored" data-anchor-id="workflow-alignment"><strong>Workflow Alignment</strong></h4>
+<p>Fine-tuning aligns the model’s behavior with domain-specific workflows, data structures, and terminology, ensuring seamless integration into business processes.</p>
+<hr>
+</section>
+</section>
+<section id="token-savings-through-shorter-prompts" class="level3">
+<h3 class="anchored" data-anchor-id="token-savings-through-shorter-prompts">Token Savings Through Shorter Prompts</h3>
+<p>Fine-tuned models inherently understand the domain context, reducing the need for lengthy and detailed instructions.</p>
+<section id="reduced-prompt-length" class="level4">
+<h4 class="anchored" data-anchor-id="reduced-prompt-length"><strong>Reduced Prompt Length</strong></h4>
+<p>Pre-trained models often require extended prompts or few-shot examples to steer them toward accurate responses.<br>
+Fine-tuned models need only minimal context, significantly reducing token usage.</p>
+</section>
+<section id="lower-api-costs" class="level4">
+<h4 class="anchored" data-anchor-id="lower-api-costs"><strong>Lower API Costs</strong></h4>
+<p>Since most LLM APIs are priced based on token usage, shorter prompts lead to cost savings and increased throughput.</p>
+</section>
+<section id="faster-performance" class="level4">
+<h4 class="anchored" data-anchor-id="faster-performance"><strong>Faster Performance</strong></h4>
+<p>Shorter prompts and smaller model sizes translate to lower latency, enabling near real-time responses—crucial for user-facing applications and high-frequency workloads.</p>
+<hr>
+</section>
+</section>
+<section id="improved-latency-and-user-experience" class="level3">
+<h3 class="anchored" data-anchor-id="improved-latency-and-user-experience">Improved Latency and User Experience</h3>
+<p>Fine-tuning not only enhances model accuracy but also contributes to faster response times:</p>
+<ul>
+<li><strong>Efficient Token Processing:</strong> With fewer tokens per request, models can process inputs more quickly.<br>
+</li>
+<li><strong>Improved Responsiveness:</strong> Applications backed by fine-tuned models provide a smoother, more interactive user experience.<br>
+</li>
+<li><strong>Scalability:</strong> Lower latency and reduced compute requirements make fine-tuned models more scalable for production use. ## Full Fine-Tuning Process: Step-by-Step Breakdown</li>
+</ul>
+<hr>
+</section>
+<section id="loading-pre-trained-model-weights" class="level3">
+<h3 class="anchored" data-anchor-id="loading-pre-trained-model-weights">1. Loading Pre-Trained Model Weights</h3>
+<section id="what-happens-behind-the-scenes" class="level4">
+<h4 class="anchored" data-anchor-id="what-happens-behind-the-scenes">What Happens Behind the Scenes:</h4>
+<ul>
+<li>The model’s architecture (layers, dimensions, and connections) is initialized first.<br>
+</li>
+<li>Pre-trained weights are fetched from a model hub like Hugging Face.<br>
+</li>
+<li>These weights are loaded into corresponding layers of the initialized model.<br>
+</li>
+<li>Each weight and bias parameter holds knowledge learned from pre-training on massive corpora (e.g., Wikipedia, BookCorpus).</li>
+</ul>
+</section>
+<section id="technical-details" class="level4">
+<h4 class="anchored" data-anchor-id="technical-details">Technical Details:</h4>
+<p>For a model like <strong>DistilBERT</strong>, approximately <strong>66 million parameters</strong> are loaded. These include:</p>
+<ul>
+<li>Token embeddings<br>
+</li>
+<li>Positional embeddings<br>
+</li>
+<li>Multi-head self-attention weights<br>
+</li>
+<li>Feed-forward network parameters<br>
+</li>
+<li>Layer normalization parameters</li>
+</ul>
+<p>These weights encode the model’s understanding of language syntax, semantics, and relationships.</p>
+</section>
+<section id="tensorflow-example" class="level4">
+<h4 class="anchored" data-anchor-id="tensorflow-example">TensorFlow Example:</h4>
+<div class="sourceCode" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> transformers <span class="im">import</span> TFAutoModelForSequenceClassification</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> TFAutoModelForSequenceClassification.from_pretrained(<span class="st">"distilbert-base-uncased"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+</section>
+<section id="adding-a-task-specific-head-layer" class="level3">
+<h3 class="anchored" data-anchor-id="adding-a-task-specific-head-layer">2. Adding a Task-Specific Head Layer</h3>
+<section id="what-happens-behind-the-scenes-1" class="level4">
+<h4 class="anchored" data-anchor-id="what-happens-behind-the-scenes-1">What Happens Behind the Scenes:</h4>
+<ul>
+<li>The original model typically ends with a general-purpose output layer<br>
+</li>
+<li>This gets replaced with a new layer designed specifically for your task<br>
+</li>
+<li>For classification, this is usually a linear layer with <strong>N outputs</strong> (where N = number of classes)<br>
+</li>
+<li>The new layer is initialized with random weights since it hasn’t been trained yet</li>
+</ul>
+</section>
+<section id="technical-details-1" class="level4">
+<h4 class="anchored" data-anchor-id="technical-details-1">Technical Details:</h4>
+<ul>
+<li>For sentiment classification with 2 classes, the head would be a <strong>Dense layer with 2 output neurons</strong><br>
+</li>
+<li>The head receives the <strong>pooled output from the final transformer layer</strong> (usually the <code>[CLS]</code> token representation)<br>
+</li>
+<li>In Hugging Face, this happens automatically when you specify <code>num_labels</code><br>
+</li>
+<li>The classification head is much smaller than the base model (typically <strong>&lt;1% of total parameters</strong>)</li>
+</ul>
+</section>
+<section id="code-example" class="level4">
+<h4 class="anchored" data-anchor-id="code-example">Code Example:</h4>
+<div class="sourceCode" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> TFAutoModelForSequenceClassification.from_pretrained(</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">"distilbert-base-uncased"</span>,</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>    num_labels<span class="op">=</span><span class="dv">2</span>  <span class="co"># Creates a classification head with 2 outputs</span></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+</section>
+</section>
+<section id="whats-happening-in-the-model-during-fine-tuning" class="level2">
+<h2 class="anchored" data-anchor-id="whats-happening-in-the-model-during-fine-tuning">What’s Happening in the Model During Fine-tuning</h2>
+<section id="layer-by-layer-adaptation" class="level3">
+<h3 class="anchored" data-anchor-id="layer-by-layer-adaptation">Layer-by-Layer Adaptation:</h3>
+<ol type="1">
+<li><strong>Embedding Layer</strong>: Adjusts to prioritize domain-specific vocabulary and usage patterns<br>
+</li>
+<li><strong>Lower Transformer Layers</strong>: Refine basic pattern recognition for your domain’s language<br>
+</li>
+<li><strong>Middle Transformer Layers</strong>: Adapt semantic understanding to your specific context<br>
+</li>
+<li><strong>Upper Transformer Layers</strong>: Become more task-focused, identifying features relevant to classification<br>
+</li>
+<li><strong>Classification Head</strong>: Learns to map from contextual representations to your specific label space</li>
+</ol>
+<hr>
+</section>
+<section id="the-gradient-flow" class="level3">
+<h3 class="anchored" data-anchor-id="the-gradient-flow">The Gradient Flow:</h3>
+<ul>
+<li>Different magnitudes of updates typically occur at different layers<br>
+</li>
+<li>Later layers usually change more dramatically than earlier layers<br>
+</li>
+<li>This creates a natural progression from general language understanding (lower layers) to task-specific processing (upper layers)</li>
+</ul>
+<hr>
+</section>
+<section id="concrete-example" class="level3">
+<h3 class="anchored" data-anchor-id="concrete-example">Concrete Example</h3>
+<p>Let’s see what’s happening in a sentiment classification task:</p>
+<ol type="1">
+<li><strong>Initial State</strong>
+<ul>
+<li>The model’s parameters can recognize general sentiment words (“good”, “bad”, “excellent”)<br>
+</li>
+<li>But it might not understand domain-specific indicators</li>
+</ul></li>
+<li><strong>During Fine-tuning</strong>
+<ul>
+<li>The embeddings gradually shift to better represent domain vocabulary<br>
+(e.g., in movie reviews, <em>“gripping”</em> becomes more associated with positive sentiment)<br>
+</li>
+<li>Attention mechanisms learn to focus on the parts of sentences that carry sentiment in your domain<br>
+</li>
+<li>The classification head learns the boundary between your specific positive and negative examples</li>
+</ul></li>
+<li><strong>Final State</strong>
+<ul>
+<li>The model has:
+<ul>
+<li>Retained its general language understanding<br>
+</li>
+<li>Adapted to domain-specific vocabulary and patterns<br>
+</li>
+<li>Developed specialized attention patterns for your task<br>
+</li>
+<li>Learned classification boundaries specific to your labeled examples</li>
+</ul></li>
+</ul></li>
+</ol>
+<hr>
+<p>This entire process enables the model to <strong>leverage its pre-trained knowledge</strong> while <strong>adapting specifically to your task and domain</strong>, ultimately resulting in better performance than either training from scratch or using the pre-trained model without fine-tuning.</p>
+</section>
+</section>
+<section id="retrieval-augmented-generation-rag" class="level2">
+<h2 class="anchored" data-anchor-id="retrieval-augmented-generation-rag">Retrieval Augmented Generation (RAG)</h2>
+<section id="limitations-of-llms" class="level3">
+<h3 class="anchored" data-anchor-id="limitations-of-llms">Limitations of LLMs</h3>
+<ul>
+<li>LLMs can’t answer correctly to private data<br>
+</li>
+<li>LLMs can’t provide the most current information</li>
+</ul>
+<p><strong>Example:</strong><br>
+LLMs can’t provide information about a company’s private organizational data or a website we created and deployed.</p>
+<hr>
+<p>When we want to develop an application which can answer private data and current data, <strong>RAG is a solution</strong>.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="Images/11_RAG_1.png" class="img-fluid figure-img"></p>
+<figcaption>RAG Exmaple</figcaption>
+</figure>
+</div>
+<ul>
+<li><strong>RAG allows LLMs to use external sources for better performance.</strong><br>
+</li>
+<li>Whenever a user gives any kind of question related to private data, it will go to the <strong>Knowledge Base (KB)</strong>, and the KB will return a response based on the question.<br>
+</li>
+<li>The <strong>LLM will process</strong> that response along with the query and generate the correct answer.</li>
+</ul>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="Images/12_RAG_2.png" class="img-fluid figure-img"></p>
+<figcaption>RAG Architecture</figcaption>
+</figure>
+</div>
+</section>
+</section>
+<section id="retrieval-augmented-generation-rag-1" class="level2">
+<h2 class="anchored" data-anchor-id="retrieval-augmented-generation-rag-1">Retrieval-Augmented Generation (RAG)</h2>
+<p>RAG is a system designed to enhance LLMs by integrating them with a retrieval mechanism.</p>
+<hr>
+<section id="it-has-2-components" class="level3">
+<h3 class="anchored" data-anchor-id="it-has-2-components">It Has 2 Components:</h3>
+<section id="retriever-component" class="level4">
+<h4 class="anchored" data-anchor-id="retriever-component">1. Retriever Component</h4>
+<ul>
+<li>Responsible for finding and accessing relevant information from external knowledge sources<br>
+</li>
+<li>When a question is submitted, the retriever analyzes the query to understand what information is needed and searches through the knowledge base (KB)<br>
+</li>
+<li>Identifies and pulls the most relevant documents, facts, and data points<br>
+</li>
+<li>Then prepares the retrieved information to be passed to the generator</li>
+</ul>
+</section>
+<section id="generator-component" class="level4">
+<h4 class="anchored" data-anchor-id="generator-component">2. Generator Component</h4>
+<ul>
+<li>The LLM receives both the original question and the context provided by the retriever<br>
+</li>
+<li>The LLM processes this combined input through its neural network<br>
+</li>
+<li>Synthesizes the information to formulate a coherent, relevant response<br>
+</li>
+<li>Finally, generates text that incorporates both its pre-trained knowledge and the retrieved context</li>
+</ul>
+<hr>
+</section>
+</section>
+</section>
+<section id="simple-rag-implementation" class="level2">
+<h2 class="anchored" data-anchor-id="simple-rag-implementation">Simple RAG Implementation</h2>
+<p>RAG typically works in <strong>2 Phases</strong>:</p>
+<section id="indexing-phase" class="level3">
+<h3 class="anchored" data-anchor-id="indexing-phase">1) Indexing Phase</h3>
+<ul>
+<li>Break documents into smaller chunks (e.g., paragraphs, sentences)<br>
+</li>
+<li>Convert each chunk into an embedding vector using a model<br>
+</li>
+<li>Store these chunks and vectors in a vector database</li>
+</ul>
+</section>
+<section id="retrieval-and-generation-phase" class="level3">
+<h3 class="anchored" data-anchor-id="retrieval-and-generation-phase">2) Retrieval and Generation Phase</h3>
+<ul>
+<li>Convert a user query into a vector using the same embedding model<br>
+</li>
+<li>Find chunks with the most similar vectors using cosine similarity<br>
+</li>
+<li>Pass the most relevant chunks to the LLM to generate a response</li>
+</ul>
+<hr>
+</section>
+<section id="main-components" class="level3">
+<h3 class="anchored" data-anchor-id="main-components">3 Main Components</h3>
+<ol type="1">
+<li><p><strong>Embedding Model</strong><br>
+Converts text into vector representations that capture semantic meaning</p></li>
+<li><p><strong>Vector Database</strong><br>
+Stores knowledge chunks and their corresponding vector representations</p></li>
+<li><p><strong>LLM</strong><br>
+A language model that generates responses using retrieved information</p></li>
+</ol>
+</section>
+</section>
+<section id="vector-databases" class="level2">
+<h2 class="anchored" data-anchor-id="vector-databases">Vector Databases</h2>
+<ul>
+<li>Vector databases store both <strong>knowledge chunks</strong> and their <strong>vector representations</strong>.</li>
+</ul>
+<section id="knowledge-chunks" class="level3">
+<h3 class="anchored" data-anchor-id="knowledge-chunks">Knowledge Chunks:</h3>
+<ul>
+<li>Pieces of text from source documents<br>
+</li>
+<li>RAG systems split the document into smaller, manageable pieces called “chunks”<br>
+</li>
+<li>These might be:
+<ul>
+<li>Individual paragraphs<br>
+</li>
+<li>Sentences<br>
+</li>
+<li>Fixed-length segments of text (e.g., 100 characters)</li>
+</ul></li>
+</ul>
+</section>
+<section id="vector-representations" class="level3">
+<h3 class="anchored" data-anchor-id="vector-representations">Vector Representations:</h3>
+<ul>
+<li>Also called <strong>embeddings</strong>: numerical translations of text into a series of numbers<br>
+</li>
+<li>These numbers capture the <strong>semantic meaning</strong> of the text in a way that computers can process<br>
+</li>
+<li>Vectors typically have <strong>hundreds or thousands of dimensions</strong>, with each dimension representing some aspect of meaning learned by the embedding model</li>
+</ul>
+<hr>
+</section>
+<section id="vector-database-stores-pairs-of-items" class="level3">
+<h3 class="anchored" data-anchor-id="vector-database-stores-pairs-of-items">Vector Database Stores Pairs of Items:</h3>
+<ol type="1">
+<li>The original text chunk<br>
+</li>
+<li>The vector embedding of that chunk</li>
+</ol>
+</section>
+<section id="why-store-both" class="level3">
+<h3 class="anchored" data-anchor-id="why-store-both">Why Store Both?</h3>
+<ol type="1">
+<li><strong>Efficiency</strong>
+<ul>
+<li>Storing embeddings allows for fast semantic searches</li>
+</ul></li>
+<li><strong>Search vs Retrieval</strong>
+<ul>
+<li>Vectors are used for <strong>searching</strong> (finding which chunks are semantically relevant to a query)<br>
+</li>
+<li>Original chunks are used for <strong>retrieving</strong> the actual content — shown to users or passed to the LLM</li>
+</ul></li>
+<li><strong>Context Preservation</strong>
+<ul>
+<li>Original text preserves <strong>important context and formatting</strong> that might be lost in the vector representation</li>
+</ul></li>
+</ol>
+<hr>
+</section>
+</section>
+<section id="cosine-similarity" class="level2">
+<h2 class="anchored" data-anchor-id="cosine-similarity">Cosine Similarity</h2>
+<ul>
+<li>A mathematical function that measures how similar two vectors are<br>
+</li>
+<li><strong>Value range:</strong> 0 to 1 (for embeddings in positive space)<br>
+</li>
+<li><strong>Closer to 1 → higher similarity</strong></li>
+</ul>
+<section id="geometric-meaning" class="level3">
+<h3 class="anchored" data-anchor-id="geometric-meaning">Geometric Meaning:</h3>
+<ul>
+<li>Cosine similarity measures the cosine of the angle between two vectors in multi-dimensional space</li>
+</ul>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 19%">
+<col style="width: 33%">
+<col style="width: 46%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Cosine Value</th>
+<th>Angle Between Vectors</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1</td>
+<td>0°</td>
+<td>Vectors are identical</td>
+</tr>
+<tr class="even">
+<td>0</td>
+<td>90°</td>
+<td>Vectors are perpendicular</td>
+</tr>
+<tr class="odd">
+<td>-1</td>
+<td>180°</td>
+<td>Vectors point in opposite directions</td>
+</tr>
+</tbody>
+</table>
+<blockquote class="blockquote">
+<p><strong>Note</strong>: For most text embeddings (which are non-negative), cosine similarity values typically range from <strong>0 to 1</strong></p>
+</blockquote>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="Images/13_Cosine.png" class="img-fluid figure-img"></p>
+<figcaption>Cosine Similarity</figcaption>
+</figure>
+</div>
+</section>
+<section id="cosine-similarity-formula" class="level3">
+<h3 class="anchored" data-anchor-id="cosine-similarity-formula">Cosine Similarity Formula</h3>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="Images/15_Cosine_2.png" class="img-fluid figure-img"></p>
+<figcaption>Cosine Similarity</figcaption>
+</figure>
+</div>
+</section>
+<section id="why-cosine-similarity-in-rag-systems" class="level3">
+<h3 class="anchored" data-anchor-id="why-cosine-similarity-in-rag-systems">Why Cosine Similarity in RAG Systems?</h3>
+<ol type="1">
+<li><strong>Direction matters more than magnitude</strong>
+<ul>
+<li>It focuses on semantic meaning (vector direction), not scale<br>
+</li>
+</ul></li>
+<li><strong>Normalization</strong>
+<ul>
+<li>Handles differences in document length since it is based on <strong>angle</strong>, not <strong>distance</strong><br>
+</li>
+</ul></li>
+<li><strong>Efficiency</strong>
+<ul>
+<li>Fast to compute, especially with vector databases<br>
+</li>
+</ul></li>
+<li><strong>Interpretability</strong>
+<ul>
+<li>Output range (0 to 1) is easy to interpret as a similarity percentage</li>
+</ul></li>
+</ol>
+<hr>
+</section>
+<section id="example" class="level3">
+<h3 class="anchored" data-anchor-id="example">Example</h3>
+<p><strong>Query:</strong><br>
+<code>"How fast do cats run?"</code> → <code>[0.8, 0.1, 0.5]</code></p>
+<p><strong>Chunk 1:</strong><br>
+<code>"Cats can travel at 31 mph"</code> → <code>[0.7, 0.2, 0.6]</code></p>
+<p><strong>Chunk 2:</strong> …</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="Images/14_Cosine_1.png" class="img-fluid figure-img"></p>
+<figcaption>Cosine Similarity</figcaption>
+</figure>
+</div>
+</section>
+</section>
 </section>
 
 </main>
